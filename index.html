@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+  <title>Occlusion Lab · Virtual Semi-adjustable Articulator</title>
+  <meta name="description" content="Move a 3D mandible on a virtual semi-adjustable articulator, see articulating-paper marks, guidance and interferences, and a live Gothic arch tracing." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./src/style.css" />
+</head>
+<body>
+  <div class="paper-dots"></div>
+  <div id="stage"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">Occlusion<span>Lab</span></div>
+      <div class="sub">Virtual semi-adjustable articulator · contacts · guidance</div>
+    </div>
+    <div id="badge" class="badge">Centric</div>
+  </header>
+
+  <section class="mapcard" id="mapcard">
+    <div class="maphead"><b>Paper marks</b><span><i class="dot c"></i>centric <i class="dot e"></i>excursive</span></div>
+    <div class="mapview" id="mapview"><em class="side r">R</em><em class="side lft">L</em></div>
+  </section>
+
+  <div class="views" id="views">
+    <button data-view="three" class="on">¾</button>
+    <button data-view="front">Front</button>
+    <button data-view="right">Right</button>
+    <button data-view="left">Left</button>
+    <button data-view="back">Lingual</button>
+    <button data-view="marks" class="primary">Marks</button>
+  </div>
+
+  <div class="marklabels"><em class="u">Upper arch · occlusal</em><em class="l">Lower arch · occlusal</em><em class="r">Pt right</em><em class="lft">Pt left</em></div>
+  <div id="toast" class="toast"></div>
+
+  <aside class="sheet" id="sheet">
+    <nav class="tabs" id="tabs">
+      <button data-tab="move" class="on"><b>1</b>Move</button>
+      <button data-tab="setup"><b>2</b>Articulator</button>
+      <button data-tab="contacts"><b>3</b>Contacts</button>
+    </nav>
+
+    <section class="pane on" data-pane="move">
+      <div class="chips moves" id="moves">
+        <button data-go="centric" class="on">Centric</button>
+        <button data-go="protrusive">Protrusive</button>
+        <button data-go="right">R lateral</button>
+        <button data-go="left">L lateral</button>
+        <button data-go="open">Open</button>
+        <button data-go="chew" class="primary">Chew ▶</button>
+      </div>
+      <div class="pads">
+        <figure class="padbox">
+          <canvas id="pad" width="300" height="260"></canvas>
+          <figcaption>Drag pad · excursion</figcaption>
+        </figure>
+        <figure class="padbox">
+          <canvas id="gothic" width="300" height="260"></canvas>
+          <figcaption id="gothicCap">Gothic arch · incisal point</figcaption>
+        </figure>
+      </div>
+      <div class="chips small" id="traceOpts">
+        <button data-pt="I" class="on">Incisal pt</button>
+        <button data-pt="CB">Central bearing pt</button>
+        <button id="flipTrace" class="ghost">Plate on lower ⇅</button>
+        <button id="clearTrace" class="ghost">Clear</button>
+      </div>
+      <div class="card verdict" id="verdict"></div>
+    </section>
+
+    <section class="pane" data-pane="setup">
+      <p class="hint">Set the articulator like you would after a protrusive record. Values are relative to the occlusal plane in this model.</p>
+      <div class="slider">
+        <div class="row"><span>Condylar inclination</span><output id="condOut">30°</output></div>
+        <input type="range" id="cond" min="0" max="60" step="1" value="30" />
+      </div>
+      <div class="slider">
+        <div class="row"><span>Bennett angle</span><output id="benOut">15°</output></div>
+        <input type="range" id="ben" min="0" max="30" step="1" value="15" />
+      </div>
+      <div class="slider">
+        <div class="row"><span>Incisal guide table</span><output id="incOut">10°</output></div>
+        <input type="range" id="inc" min="0" max="60" step="1" value="10" />
+      </div>
+      <div class="slider">
+        <div class="row"><span>Articulating paper</span><output id="paperOut">100 µm</output></div>
+        <input type="range" id="paper" min="20" max="200" step="10" value="100" />
+      </div>
+      <div class="chips small">
+        <label class="toggle"><input type="checkbox" id="teethGuide" checked /> <span>Teeth guide (pin may lift)</span></label>
+        <label class="toggle"><input type="checkbox" id="showCentric" checked /> <span>Centric marks</span></label>
+        <label class="toggle"><input type="checkbox" id="keepMarks" checked /> <span>Keep excursive marks</span></label>
+        <label class="toggle"><input type="checkbox" id="showPins" checked /> <span>Contact pins in 3D</span></label>
+        <label class="toggle"><input type="checkbox" id="showHalo" checked /> <span>Mark halos</span></label>
+        <label class="toggle"><input type="checkbox" id="showFrame" checked /> <span>Articulator frame</span></label>
+      </div>
+      <div class="chips small">
+        <span class="lbl">Quick setups</span>
+        <button data-preset="average">Average values</button>
+        <button data-preset="flat">Flat paths, table only</button>
+        <button data-preset="steep">Steep condyles</button>
+        <button id="clearMarks" class="ghost">Clear marks</button>
+      </div>
+      <div class="card note-card">
+        <b>Teeth guide</b> on: the mandible rides up on whichever teeth touch first, like the incisal pin lifting off the table. Off: the guide table and condylar paths alone steer it, so cusps that would collide show as overlaps (black marks).
+      </div>
+    </section>
+
+    <section class="pane" data-pane="contacts">
+      <div class="chart" id="chart"></div>
+      <div class="legend">
+        <span><i style="background:#2f5fd0"></i>centric</span><span><i style="background:#e2366f"></i>excursive</span><span><i style="background:#221d1f"></i>overlap</span><span>darker core = closest · pale halo = display aid</span>
+      </div>
+      <ul class="rules" id="rules"></ul>
+      <div class="card stats" id="stats"></div>
+    </section>
+
+    <footer class="foot">Teaching model: simplified tooth forms and articulator kinematics. Not for clinical use. · Built by Swapnil Agrawal (BDS intern) with three.js</footer>
+  </aside>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

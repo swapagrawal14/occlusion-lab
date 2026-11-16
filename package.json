@@ -1,0 +1,11 @@
+{
+  "name": "occlusion-lab",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Browser 3D virtual semi-adjustable articulator for BDS students",
+  "type": "module",
+  "scripts": { "dev": "vite", "build": "vite build", "preview": "vite preview" },
+  "author": "Swapnil Agrawal",
+  "dependencies": { "three": "^0.170.0" },
+  "devDependencies": { "vite": "^8.3.8" }
+}
